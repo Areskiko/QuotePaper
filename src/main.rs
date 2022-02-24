@@ -1,7 +1,7 @@
 extern crate cairo;
 use cairo::{ ImageSurface, Format, Context };
 use log::{info, error};
-use quote::{get_settings, paint_background, paint_text, setup_logger, save_to_file};
+use quote_paper::{get_settings, paint_background, paint_text, setup_logger, save_to_file};
 
 
 
