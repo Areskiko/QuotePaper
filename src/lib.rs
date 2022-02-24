@@ -2,6 +2,8 @@ use cairo::Context;
 use confy;
 use serde::{Deserialize, Serialize};
 
+const CONF_FILE: &str = "quote";
+
 #[derive(Serialize, Deserialize, Debug)]
 enum Slant {
     Normal,
@@ -42,10 +44,10 @@ pub struct Settings {
     pub width: i32,
     pub height: i32,
     font_size: f64,
-    font_face: Font,
+    text: String,
     font_color: (f64, f64, f64),
     background_color: (f64, f64, f64),
-    text: String,
+    font_face: Font,
 }
 
 impl ::std::default::Default for Settings {
@@ -67,7 +69,15 @@ impl ::std::default::Default for Settings {
 }
 
 pub fn get_settings() -> Settings {
-    let settings: Settings = confy::load("settings").unwrap_or_default();
+    let load = confy::load(CONF_FILE);
+    
+    let settings;
+    if let Ok(load) = load {
+        settings = load;
+    } else {
+        settings = Settings::default();
+        confy::store(CONF_FILE, &settings).expect("Couldn't store settings");
+    }
     settings
 }
 
