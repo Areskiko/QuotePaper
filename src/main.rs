@@ -13,7 +13,7 @@ fn main() {
 
     let settings = get_settings();
 
-    let surface_res = ImageSurface::create(Format::ARgb32, settings.width, settings.height);
+    let surface_res = ImageSurface::create(Format::ARgb32, settings.width as i32, settings.height as i32);
     if let Ok(surface) = surface_res {
         let context = Context::new(&surface);
 

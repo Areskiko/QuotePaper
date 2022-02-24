@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use log::{error, info};
 
 const CONF_FILE: &str = "quote";
+const SCALE: u8 = 255;
 
 #[derive(Serialize, Deserialize, Debug)]
 enum Slant {
@@ -43,8 +44,9 @@ impl Font {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
-    pub width: i32,
-    pub height: i32,
+    pub width: f64,
+    pub height: f64,
+    padding: f64,
     filename: String,
     font_size: f64,
     text: String,
@@ -56,8 +58,8 @@ pub struct Settings {
 impl ::std::default::Default for Settings {
     fn default() -> Self {
         Self {
-            width: 1920,
-            height: 1080,
+            width: 1920.0,
+            height: 1080.0,
             filename: "output.png".to_string(),
             font_size: 60.0,
             font_face: Font {
@@ -66,7 +68,7 @@ impl ::std::default::Default for Settings {
                 weight: Weight::Normal,
             },
             font_color: (1.0, 1.0, 1.0),
-            background_color: (35.0 / 255.0, 39.0 / 255.0, 46.0 / 255.0),
+            background_color: (35.0, 39.0, 46.0),
             text: "Scientia Invicta".to_string(),
         }
     }
@@ -98,7 +100,8 @@ pub fn paint_background(context: &Context, settings: &Settings) {
 pub fn paint_text(context: &Context, settings: &Settings) {
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
-    context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
+    context.set_source_rgb(settings.font_color.0 / SCALE, settings.font_color.1 / SCALE, settings.font_color.2 / SCALE);
+
     let ext = context.text_extents(&settings.text);
     context.move_to(settings.width / 2.0 - ext.width / 2.0, settings.height / 2.0 - ext.height / 2.0);
     context.show_text(&settings.text);
