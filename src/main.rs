@@ -1,23 +1,27 @@
 extern crate cairo;
 use cairo::{ ImageSurface, Format, Context };
-use quote::{get_settings, paint_background, paint_text};
-use std::fs::File;
+use log::{info, error};
+use quote::{get_settings, paint_background, paint_text, setup_logger, save_to_file};
+
 
 
 fn main() {
+    match setup_logger() {
+        Ok(_) => info!("Logger setup"),
+        Err(e) => panic!("Couldn't setup logger: {}", e),
+    }
 
     let settings = get_settings();
 
-    let surface = ImageSurface::create(Format::ARgb32, settings.width, settings.height)
-        .expect("Couldn't create surface");
-    let context = Context::new(&surface);
+    let surface_res = ImageSurface::create(Format::ARgb32, settings.width, settings.height);
+    if let Ok(surface) = surface_res {
+        let context = Context::new(&surface);
 
-    paint_background(&context, &settings);
-    paint_text(&context, &settings);
+        paint_background(&context, &settings);
+        paint_text(&context, &settings);
 
-
-    let mut file = File::create("output.png")
-        .expect("Couldn't create file"); 
-    surface.write_to_png(&mut file)
-        .expect("Couldn't write to png");
+        save_to_file(&settings, &surface);
+    } else {
+        error!("Couldn't create surface");
+    }
 }

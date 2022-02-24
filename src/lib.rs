@@ -1,6 +1,9 @@
+use std::fs::File;
+
 use cairo::Context;
 use confy;
 use serde::{Deserialize, Serialize};
+use log::{error, info};
 
 const CONF_FILE: &str = "quote";
 
@@ -43,6 +46,7 @@ impl Font {
 pub struct Settings {
     pub width: i32,
     pub height: i32,
+    filename: String,
     font_size: f64,
     text: String,
     font_color: (f64, f64, f64),
@@ -55,6 +59,7 @@ impl ::std::default::Default for Settings {
         Self {
             width: 1920,
             height: 1080,
+            filename: "output.png".to_string(),
             font_size: 60.0,
             font_face: Font {
                 family: "Courier".to_string(),
@@ -74,9 +79,14 @@ pub fn get_settings() -> Settings {
     let settings;
     if let Ok(load) = load {
         settings = load;
+        info!("Loaded settings from conf file");
     } else {
         settings = Settings::default();
-        confy::store(CONF_FILE, &settings).expect("Couldn't store settings");
+        let res = confy::store(CONF_FILE, &settings);
+        match res {
+            Ok(_) => info!("Created default conf file"),
+            Err(e) => error!("Couldn't create conf file: {}", e),
+        }
     }
     settings
 }
@@ -93,4 +103,36 @@ pub fn paint_text(context: &Context, settings: &Settings) {
     context.set_font_size(settings.font_size);
     context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
     context.show_text(&settings.text);
+}
+
+pub fn save_to_file(settings: &Settings, surface: &cairo::ImageSurface) {
+    let file_res = File::create(&settings.filename);
+    match file_res {
+        Ok(mut file) => {
+            let res = surface.write_to_png(&mut file);
+            match res {
+                Ok(_) => info!("Saved image to file"),
+                Err(e) => error!("Couldn't save image to file: {}", e),
+            }
+        }
+        Err(e) => error!("Couldn't create file: {}", e),
+    }
+}
+
+pub fn setup_logger() -> Result<(), fern::InitError> {
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+                record.target(),
+                record.level(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Debug)
+        .chain(std::io::stdout())
+        .chain(fern::log_file("output.log")?)
+        .apply()?;
+    Ok(())
 }

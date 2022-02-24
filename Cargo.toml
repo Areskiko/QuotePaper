@@ -10,3 +10,6 @@ png = "0.11.0"
 cairo-rs = { version = "0.2.0", features = ["png"] }
 confy = "*"
 serde = { version = "*", features = ["derive"]}
+log = "*"
+fern = "*"
+chrono = "*"
