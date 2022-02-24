@@ -1,7 +1,6 @@
 use std::fs::File;
 
 use cairo::Context;
-use confy;
 use serde::{Deserialize, Serialize};
 use log::{error, info};
 
@@ -66,7 +65,7 @@ impl ::std::default::Default for Settings {
                 slant: Slant::Normal,
                 weight: Weight::Normal,
             },
-            font_color: (255.0 / 255.0, 255.0 / 255.0, 255.0 / 255.0),
+            font_color: (1.0, 1.0, 1.0),
             background_color: (35.0 / 255.0, 39.0 / 255.0, 46.0 / 255.0),
             text: "Scientia Invicta".to_string(),
         }
