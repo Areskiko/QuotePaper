@@ -96,11 +96,11 @@ pub fn paint_background(context: &Context, settings: &Settings) {
 }
 
 pub fn paint_text(context: &Context, settings: &Settings) {
-    context.move_to((settings.width / 2) as f64, (settings.height / 2) as f64);
-
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
     context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
+    let ext = context.text_extents(&settings.text);
+    context.move_to(settings.width / 2.0 - ext.width / 2.0, settings.height / 2.0 - ext.height / 2.0);
     context.show_text(&settings.text);
 }
 
