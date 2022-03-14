@@ -13,3 +13,5 @@ serde = { version = "*", features = ["derive"]}
 log = "*"
 fern = "*"
 chrono = "*"
+reqwest = { version = "*", features = ["blocking"]}
+serde_json = "*"
