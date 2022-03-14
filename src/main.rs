@@ -1,17 +1,12 @@
 extern crate cairo;
 use cairo::{ ImageSurface, Format, Context };
-use log::{info, error};
-use quote_paper::{get_settings, setup_logger, save_to_file, painting::{paint_background, paint_text}, source::rr::RRQuote, input::structs::QuoteSource};
+use log::{error};
+use quote_paper::{get_settings, save_to_file, painting::{paint_background, paint_text}, source::rr::RRQuote, input::structs::QuoteSource};
 
 
 
 
 fn main() {
-
-    match setup_logger() {
-        Ok(_) => info!("Logger setup"),
-        Err(e) => panic!("Couldn't setup logger: {}", e),
-    }
 
     let settings = get_settings();
 
