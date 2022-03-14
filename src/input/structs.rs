@@ -1,5 +1,7 @@
-use serde::{Serialize, Deserialize};
+//! Structs and Enums for the input module.
 
+use reqwest::header::HeaderMap;
+use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Quote {
@@ -23,8 +25,10 @@ impl Quote {
 }
 
 pub trait QuoteSource {
+    fn new() -> Self;
     fn get_quote(&self) -> Quote;
     fn from_source(&self, source: &str) -> Self;
+    fn headers(&self) -> Option<HeaderMap>;
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 use log::{error, info, debug};
 use source::rr::{RRQuote};
 
+use crate::input::structs::QuoteSource;
+
 const CONF_FILE: &str = "quote";
 
 #[derive(Serialize, Deserialize, Debug)]
