@@ -1,7 +1,8 @@
 extern crate cairo;
 use cairo::{ ImageSurface, Format, Context };
 use log::{error};
-use quote_paper::{get_settings, save_to_file, painting::{paint_background, paint_text}, source::rr::RRQuote, input::structs::QuoteSource};
+use quote_paper::{get_settings, save_to_file, painting::{paint_background, paint_text}, input::structs::QuoteSource};
+use quote_paper::source::random_red_rising::RRQuote;
 
 
 

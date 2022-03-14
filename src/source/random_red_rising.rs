@@ -1,4 +1,4 @@
-//! Red Rising quotes from https://www.redrisingquotes.com/
+//! Red Rising quotes from https://www.redrisingquotes.com/api/v1/random/
 
 use reqwest::header::{HeaderMap, ACCEPT, HeaderValue};
 use serde::{Serialize, Deserialize};
