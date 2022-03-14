@@ -7,7 +7,7 @@ pub mod painting;
 
 use input::{structs::SourceType};
 use serde::{Deserialize, Serialize};
-use log::{error, info};
+use log::{error, info, LevelFilter};
 
 
 
@@ -49,16 +49,34 @@ impl Font {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, Copy, Clone)]
+enum Level {
+    Debug,
+    Info,
+    Warn,
+    Error,
+}
+
+fn get_level(level: Level) -> LevelFilter {
+    match level {
+        Level::Debug => LevelFilter::Debug,
+        Level::Info => LevelFilter::Info,
+        Level::Warn => LevelFilter::Warn,
+        Level::Error => LevelFilter::Error,
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
     pub width: f64,
     pub height: f64,
     padding: f64,
     spacing: f64,
+    font_size: f64,
     filename: String,
     location: String,
+    log_level: Level,
     source_type: SourceType,
-    font_size: f64,
     font_color: (f64, f64, f64),
     background_color: (f64, f64, f64),
     font_face: Font,
@@ -80,6 +98,7 @@ impl ::std::default::Default for Settings {
             height: 1080.0,
             padding: 10.0,
             spacing: 10.0,
+            log_level: Level::Error,
             filename: "output.png".to_string(),
             font_size: 60.0,
             font_face: Font {
@@ -99,8 +118,14 @@ pub fn get_settings() -> Settings {
     let load = confy::load(CONF_FILE);
     
     let settings;
+    
+    // This is a bad idea...
     if let Ok(load) = load {
         settings = load;
+        match setup_logger(&settings) {
+            Ok(_) => info!("Logger setup"),
+            Err(e) => panic!("Couldn't setup logger: {}", e),
+        }
         info!("Loaded settings from conf file");
     } else {
         settings = Settings::default();
@@ -127,7 +152,7 @@ pub fn save_to_file(settings: &Settings, surface: &cairo::ImageSurface) {
     }
 }
 
-pub fn setup_logger() -> Result<(), fern::InitError> {
+pub fn setup_logger(settings: &Settings) -> Result<(), fern::InitError> {
     fern::Dispatch::new()
         .format(|out, message, record| {
             out.finish(format_args!(
@@ -138,7 +163,7 @@ pub fn setup_logger() -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(log::LevelFilter::Debug)
+        .level(get_level(settings.log_level.clone()))
         .chain(std::io::stdout())
         .chain(fern::log_file("output.log")?)
         .apply()?;
