@@ -1,8 +1,13 @@
 use std::fs::File;
 
+pub mod input;
+pub mod source;
+
 use cairo::Context;
+use input::{structs::SourceType, parsing::get};
 use serde::{Deserialize, Serialize};
-use log::{error, info};
+use log::{error, info, debug};
+use source::rr::{RRQuote};
 
 const CONF_FILE: &str = "quote";
 
@@ -46,11 +51,21 @@ pub struct Settings {
     pub width: i32,
     pub height: i32,
     filename: String,
+    location: String,
+    source_type: SourceType,
     font_size: f64,
-    text: String,
     font_color: (f64, f64, f64),
     background_color: (f64, f64, f64),
     font_face: Font,
+}
+
+impl Settings {
+    pub fn location(&self) -> &String {
+        &self.location
+    }
+    pub fn source_type(&self) -> &SourceType {
+        &self.source_type
+    }
 }
 
 impl ::std::default::Default for Settings {
@@ -67,7 +82,8 @@ impl ::std::default::Default for Settings {
             },
             font_color: (1.0, 1.0, 1.0),
             background_color: (35.0 / 255.0, 39.0 / 255.0, 46.0 / 255.0),
-            text: "Scientia Invicta".to_string(),
+            location: "https://www.redrisingquotes.com/api/v1/random/".to_string(),
+            source_type: SourceType::URL,
         }
     }
 }
@@ -101,7 +117,9 @@ pub fn paint_text(context: &Context, settings: &Settings) {
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
     context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
-    context.show_text(&settings.text);
+    let t = get(&settings, &mut RRQuote::new());
+    debug!("{:?}", t);
+    context.show_text(t.text.as_str());
 }
 
 pub fn save_to_file(settings: &Settings, surface: &cairo::ImageSurface) {
@@ -129,7 +147,7 @@ pub fn setup_logger() -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(log::LevelFilter::Info)
+        .level(log::LevelFilter::Debug)
         .chain(std::io::stdout())
         .chain(fern::log_file("output.log")?)
         .apply()?;
