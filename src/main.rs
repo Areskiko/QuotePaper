@@ -1,7 +1,7 @@
 extern crate cairo;
 use cairo::{ ImageSurface, Format, Context };
 use log::{info, error};
-use quote_paper::{get_settings, paint_background, paint_text, setup_logger, save_to_file};
+use quote_paper::{get_settings, setup_logger, save_to_file, painting::{paint_background, paint_text}, source::rr::RRQuote, input::structs::QuoteSource};
 
 
 
@@ -20,7 +20,7 @@ fn main() {
         let context = Context::new(&surface);
 
         paint_background(&context, &settings);
-        paint_text(&context, &settings);
+        paint_text(&context, &settings, &mut RRQuote::new());
 
         save_to_file(&settings, &surface);
     } else {

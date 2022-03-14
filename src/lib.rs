@@ -2,17 +2,17 @@ use std::fs::File;
 
 pub mod input;
 pub mod source;
+pub mod painting;
 
-use cairo::Context;
-use input::{structs::SourceType, parsing::get};
+
+use input::{structs::SourceType};
 use serde::{Deserialize, Serialize};
-use log::{error, info, debug};
-use source::rr::{RRQuote};
+use log::{error, info};
 
-use crate::input::structs::QuoteSource;
+
 
 const CONF_FILE: &str = "quote";
-const SCALE: u8 = 255;
+//const SCALE: u8 = 255;
 
 #[derive(Serialize, Deserialize, Debug)]
 enum Slant {
@@ -54,6 +54,7 @@ pub struct Settings {
     pub width: f64,
     pub height: f64,
     padding: f64,
+    spacing: f64,
     filename: String,
     location: String,
     source_type: SourceType,
@@ -77,6 +78,8 @@ impl ::std::default::Default for Settings {
         Self {
             width: 1920.0,
             height: 1080.0,
+            padding: 10.0,
+            spacing: 10.0,
             filename: "output.png".to_string(),
             font_size: 60.0,
             font_face: Font {
@@ -108,20 +111,6 @@ pub fn get_settings() -> Settings {
         }
     }
     settings
-}
-
-pub fn paint_background(context: &Context, settings: &Settings) {
-    context.set_source_rgb(settings.background_color.0, settings.background_color.1, settings.background_color.2);
-    context.paint();
-}
-
-pub fn paint_text(context: &Context, settings: &Settings) {
-    context.set_font_face(settings.font_face.to_cairo());
-    context.set_font_size(settings.font_size);
-    context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
-    let t = get(&settings, &mut RRQuote::new());
-    debug!("{:?}", t);
-    context.show_text(t.text.as_str());
 }
 
 pub fn save_to_file(settings: &Settings, surface: &cairo::ImageSurface) {
