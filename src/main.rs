@@ -5,7 +5,9 @@ use quote_paper::{get_settings, paint_background, paint_text, setup_logger, save
 
 
 
+
 fn main() {
+
     match setup_logger() {
         Ok(_) => info!("Logger setup"),
         Err(e) => panic!("Couldn't setup logger: {}", e),

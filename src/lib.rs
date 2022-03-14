@@ -1,8 +1,15 @@
 use std::fs::File;
 
+pub mod input;
+pub mod source;
+
 use cairo::Context;
+use input::{structs::SourceType, parsing::get};
 use serde::{Deserialize, Serialize};
-use log::{error, info};
+use log::{error, info, debug};
+use source::rr::{RRQuote};
+
+use crate::input::structs::QuoteSource;
 
 const CONF_FILE: &str = "quote";
 const SCALE: u8 = 255;
@@ -48,11 +55,21 @@ pub struct Settings {
     pub height: f64,
     padding: f64,
     filename: String,
+    location: String,
+    source_type: SourceType,
     font_size: f64,
-    text: String,
     font_color: (f64, f64, f64),
     background_color: (f64, f64, f64),
     font_face: Font,
+}
+
+impl Settings {
+    pub fn location(&self) -> &String {
+        &self.location
+    }
+    pub fn source_type(&self) -> &SourceType {
+        &self.source_type
+    }
 }
 
 impl ::std::default::Default for Settings {
@@ -68,8 +85,9 @@ impl ::std::default::Default for Settings {
                 weight: Weight::Normal,
             },
             font_color: (1.0, 1.0, 1.0),
-            background_color: (35.0, 39.0, 46.0),
-            text: "Scientia Invicta".to_string(),
+            background_color: (35.0 / 255.0, 39.0 / 255.0, 46.0 / 255.0),
+            location: "https://www.redrisingquotes.com/api/v1/random/".to_string(),
+            source_type: SourceType::URL,
         }
     }
 }
@@ -100,11 +118,10 @@ pub fn paint_background(context: &Context, settings: &Settings) {
 pub fn paint_text(context: &Context, settings: &Settings) {
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
-    context.set_source_rgb(settings.font_color.0 / SCALE, settings.font_color.1 / SCALE, settings.font_color.2 / SCALE);
-
-    let ext = context.text_extents(&settings.text);
-    context.move_to(settings.width / 2.0 - ext.width / 2.0, settings.height / 2.0 - ext.height / 2.0);
-    context.show_text(&settings.text);
+    context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
+    let t = get(&settings, &mut RRQuote::new());
+    debug!("{:?}", t);
+    context.show_text(t.text.as_str());
 }
 
 pub fn save_to_file(settings: &Settings, surface: &cairo::ImageSurface) {
@@ -132,7 +149,7 @@ pub fn setup_logger() -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(log::LevelFilter::Info)
+        .level(log::LevelFilter::Debug)
         .chain(std::io::stdout())
         .chain(fern::log_file("output.log")?)
         .apply()?;
