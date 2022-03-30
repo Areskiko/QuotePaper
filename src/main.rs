@@ -4,7 +4,7 @@ use log::{error};
 use quote_paper::{
     get_settings, save_to_file,
     painting::{paint_background, paint_text},
-    source::{use_source, Source}
+    source::{use_source}
 };
 
 

@@ -168,7 +168,7 @@ pub fn setup_logger(settings: &Settings) -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(get_level(settings.log_level.clone()))
+        .level(get_level(settings.log_level))
         .chain(std::io::stdout())
         .chain(fern::log_file("output.log")?)
         .apply()?;

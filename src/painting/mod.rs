@@ -13,14 +13,14 @@ pub fn paint_text(context: &Context, settings: &Settings, source: Box<dyn QuoteS
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
     context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);
-    let q = get(&settings, source);
+    let q = get(settings, source);
     let mut t = q.text;
-    t.push_str("\"");
-    t.insert_str(0, "\"");
+    t.push('\"');
+    t.insert(0, '\"');
     let mut a = q.author;
     a.insert_str(0, "- ");
     let mut lines = vec![];
-    lines.push(t.split(" ").collect::<Vec<&str>>());
+    lines.push(t.split(' ').collect::<Vec<&str>>());
     let mut h = 0.0;
 
     // This should be refactored, but works for now
