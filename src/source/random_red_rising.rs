@@ -3,7 +3,7 @@
 use reqwest::header::{HeaderMap, ACCEPT, HeaderValue};
 use serde::{Serialize, Deserialize};
 
-use crate::input::structs::{QuoteSource, Quote};
+use crate::input::structs::{QuoteSource, Quote, QuoteSourceBuilder};
 
 /// Quote response from API
 #[derive(Serialize, Deserialize, Debug)]
@@ -24,13 +24,12 @@ pub struct Results {
     tags: Vec<String>
 }
 
+/// Wrapper to build an empty Quote
+pub struct Wrapper {}
 
-
-impl QuoteSource for RRQuote {
-
-    /// Create a new quote source
-    fn new() -> RRQuote {
-        RRQuote {
+impl QuoteSourceBuilder for Wrapper {
+    fn build() -> Box<dyn QuoteSource> {
+        Box::new(RRQuote {
             count: 0,
             results: vec![Results {
                 id: "".to_string(),
@@ -41,15 +40,21 @@ impl QuoteSource for RRQuote {
                 page_no: 0,
                 tags: vec![]
             }]
-        }
+        })
     }
+}
+
+impl QuoteSource for RRQuote {
+
     /// Convert from a RRQuote to a generic Quote
     fn get_quote(&self) -> Quote {
         Quote::new(self.results[0].text.clone(), self.results[0].character.clone())
     }
     /// Parse a source string to a RRQuote
-    fn from_source(&self, source: &str) -> RRQuote {
-        serde_json::from_str(source).unwrap()
+    fn from_source(&mut self, source: &str) {
+        let quote_src: RRQuote = serde_json::from_str(source).unwrap();
+        self.count = quote_src.count;
+        self.results = quote_src.results;
     }
 
     /// Get headers for the request

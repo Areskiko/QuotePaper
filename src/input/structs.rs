@@ -24,10 +24,12 @@ impl Quote {
     }
 }
 
+pub trait QuoteSourceBuilder {
+    fn build() -> Box<dyn QuoteSource>;
+}
 pub trait QuoteSource {
-    fn new() -> Self;
     fn get_quote(&self) -> Quote;
-    fn from_source(&self, source: &str) -> Self;
+    fn from_source(&mut self, source: &str);
     fn headers(&self) -> Option<HeaderMap>;
 }
 

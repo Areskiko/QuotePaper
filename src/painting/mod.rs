@@ -9,7 +9,7 @@ pub fn paint_background(context: &Context, settings: &Settings) {
     context.paint();
 }
 
-pub fn paint_text<T: QuoteSource>(context: &Context, settings: &Settings, source: &mut T) {
+pub fn paint_text(context: &Context, settings: &Settings, source: Box<dyn QuoteSource>) {
     context.set_font_face(settings.font_face.to_cairo());
     context.set_font_size(settings.font_size);
     context.set_source_rgb(settings.font_color.0, settings.font_color.1, settings.font_color.2);

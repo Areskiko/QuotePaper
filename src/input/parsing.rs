@@ -9,7 +9,7 @@ use crate::Settings;
 use super::structs::{QuoteSource, Quote, SourceType};
 
 /// Get a quote as described by the settings, using the source as a format
-pub fn get<T: QuoteSource>(settings: &Settings, source: &mut T) -> Quote {
+pub fn get(settings: &Settings, source: Box<dyn QuoteSource>) -> Quote {
     match settings.source_type() {
         SourceType::FILE => {
             read(settings, source)
@@ -21,7 +21,7 @@ pub fn get<T: QuoteSource>(settings: &Settings, source: &mut T) -> Quote {
 }
 
 /// Request a quote from the internet
-fn request<T: QuoteSource>(client: &blocking::Client, settings: &Settings, source: &mut T) -> Quote {
+fn request(client: &blocking::Client, settings: &Settings, mut source: Box<dyn QuoteSource>) -> Quote {
     let rb = client.get(settings.location());
     let res;
     if let Some(head) = source.headers() {
@@ -31,7 +31,8 @@ fn request<T: QuoteSource>(client: &blocking::Client, settings: &Settings, sourc
     }
     if let Ok(res) = res {
         let body = res.text().unwrap();
-        let quote: Quote = source.from_source(&body).get_quote();
+        source.from_source(&body);
+        let quote: Quote = source.get_quote();
         quote
     } else {
         Quote::empty()
@@ -39,7 +40,7 @@ fn request<T: QuoteSource>(client: &blocking::Client, settings: &Settings, sourc
 }
 
 /// Read a quote from a file
-fn read<T: QuoteSource>(settings: &Settings, source: &mut T) -> Quote {
+fn read(settings: &Settings, mut source: Box<dyn QuoteSource>) -> Quote {
     let mut file = std::fs::File::open(settings.location()).unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
