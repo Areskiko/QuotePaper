@@ -77,6 +77,7 @@ pub struct Settings {
     location: String,
     log_level: Level,
     source_type: SourceType,
+    source_format: source::Source,
     font_color: (f64, f64, f64),
     background_color: (f64, f64, f64),
     font_face: Font,
@@ -88,6 +89,9 @@ impl Settings {
     }
     pub fn source_type(&self) -> &SourceType {
         &self.source_type
+    }
+    pub fn source_format(&self) -> &source::Source {
+        &self.source_format
     }
 }
 
@@ -110,6 +114,7 @@ impl ::std::default::Default for Settings {
             background_color: (35.0 / 255.0, 39.0 / 255.0, 46.0 / 255.0),
             location: "https://www.redrisingquotes.com/api/v1/random/".to_string(),
             source_type: SourceType::URL,
+            source_format: source::Source::Basic,
         }
     }
 }

@@ -41,7 +41,7 @@ fn request(client: &blocking::Client, settings: &Settings, mut source: Box<dyn Q
 
 /// Read a quote from a file
 fn read(settings: &Settings, mut source: Box<dyn QuoteSource>) -> Quote {
-    let mut file = std::fs::File::open(settings.location()).unwrap();
+    let mut file = std::fs::File::open(shellexpand::tilde(settings.location()).to_string()).unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     source.from_source(&contents);

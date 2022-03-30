@@ -15,3 +15,4 @@ fern = "*"
 chrono = "*"
 reqwest = { version = "*", features = ["blocking"]}
 serde_json = "*"
+shellexpand = "*"
