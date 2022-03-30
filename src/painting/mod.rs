@@ -19,8 +19,7 @@ pub fn paint_text(context: &Context, settings: &Settings, source: Box<dyn QuoteS
     t.insert(0, '\"');
     let mut a = q.author;
     a.insert_str(0, "- ");
-    let mut lines = vec![];
-    lines.push(t.split(' ').collect::<Vec<&str>>());
+    let mut lines = vec![t.split(' ').collect::<Vec<&str>>()];
     let mut h = 0.0;
 
     // This should be refactored, but works for now
@@ -29,7 +28,7 @@ pub fn paint_text(context: &Context, settings: &Settings, source: Box<dyn QuoteS
         while context.text_extents(&lines.get(i).unwrap().join(" ")).width + (settings.padding * 2.0) > settings.width {
             let word = lines.get_mut(i).unwrap().pop();
             if let Some(word) = word {
-                let word_clone = word.clone();
+                let word_clone = <&str>::clone(&word);
                 let nl = lines.get_mut(i+1);
                 if let Some(nl) = nl {
                     nl.insert(0, word_clone);
